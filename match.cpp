@@ -189,8 +189,8 @@ bool estimatePoseRANSAC(Mat &full,Mat &frame)
 
     for(unsigned int match_index = 0; match_index < filteredMatches.size(); ++match_index)
     {
-        Point3f point3d_model = list_points3d_model[ filteredMatches[match_index].trainIdx ];   // 3D point from model
-        Point2f point2d_scene = keypoints_scene[ filteredMatches[match_index].queryIdx ].pt;    // 2D point from the scene
+        //Point3f point3d_model = list_points3d_model[ filteredMatches[match_index].trainIdx ];   // 3D point from model
+        //Point2f point2d_scene = keypoints_scene[ filteredMatches[match_index].queryIdx ].pt;    // 2D point from the scene
         //list_points3d_model_match.push_back(point3d_model);                                      // add 3D point
         //list_points2d_scene_match.push_back(point2d_scene);                                      // add 2D point
     }

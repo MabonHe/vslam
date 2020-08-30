@@ -67,6 +67,10 @@ public:
                       std::vector<cv::KeyPoint>& keypoints_frame,
                       const cv::Mat& descriptors_model,
                       const std::vector<cv::KeyPoint>& keypoints_model);
+    // Match feature points using ratio and symmetry test
+    void robustMatch( const cv::Mat& frame, std::vector<cv::DMatch>& good_matches,
+                      std::vector<cv::KeyPoint>& keypoints_frame,
+                      const cv::Mat& frame_reference,std::vector<cv::KeyPoint>& keypoint_ref);
 
     // Match feature points using ratio test
     void fastRobustMatch( const cv::Mat& frame, std::vector<cv::DMatch>& good_matches,

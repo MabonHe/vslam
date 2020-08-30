@@ -118,7 +118,46 @@ void RobustMatcher::robustMatch( const cv::Mat& frame, std::vector<cv::DMatch>& 
         cv::drawMatches(frame, keypoints_frame, training_img_, keypoints_model, good_matches, img_matching_);
     }
 }
+void RobustMatcher::robustMatch( const cv::Mat& frame, std::vector<cv::DMatch>& good_matches,
+                                 std::vector<cv::KeyPoint>& keypoints_frame, const cv::Mat& frame_reference,
+                                 std::vector<cv::KeyPoint>& keypoints_ref)
+{
+    // 1a. Detection of the ORB features
+    this->computeKeyPoints(frame, keypoints_frame);
 
+    // 1b. Extraction of the ORB descriptors
+    cv::Mat descriptors_frame;
+    this->computeDescriptors(frame, keypoints_frame, descriptors_frame);
+
+    //1c.Detection of the ORB features
+    this->computeKeyPoints(frame_reference, keypoints_ref);
+    //1d. Extraction of the ORB descriptors
+    cv::Mat descriptors_ref;
+    this->computeDescriptors(frame_reference, keypoints_ref, descriptors_ref);
+
+    // 2. Match the two image descriptors
+    std::vector<std::vector<cv::DMatch> > matches12, matches21;
+
+    // 2a. From image 1 to image 2
+    matcher_->knnMatch(descriptors_frame, descriptors_ref, matches12, 2); // return 2 nearest neighbours
+
+    // 2b. From image 2 to image 1
+    matcher_->knnMatch(descriptors_ref, descriptors_frame, matches21, 2); // return 2 nearest neighbours
+
+    // 3. Remove matches for which NN ratio is > than threshold
+    // clean image 1 -> image 2 matches
+    ratioTest(matches12);
+    // clean image 2 -> image 1 matches
+    ratioTest(matches21);
+
+    // 4. Remove non-symmetrical matches
+    symmetryTest(matches12, matches21, good_matches);
+
+    if (!training_img_.empty() && !keypoints_ref.empty())
+    {
+        cv::drawMatches(frame, keypoints_frame, training_img_, keypoints_ref, good_matches, img_matching_);
+    }
+}
 void RobustMatcher::fastRobustMatch( const cv::Mat& frame, std::vector<cv::DMatch>& good_matches,
                                      std::vector<cv::KeyPoint>& keypoints_frame,
                                      const cv::Mat& descriptors_model,
