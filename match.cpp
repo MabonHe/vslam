@@ -211,4 +211,20 @@ bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F)
     vector<KeyPoint> keypoints_frame,keypoints_ref;
     rmatcher.robustMatch(frame,good_match,keypoints_frame,full,keypoints_ref);
 
+    vector<int> queryIdxs(good_match.size()), trainIdxs(good_match.size());
+    for (size_t i = 0; i < good_match.size(); i++)
+    {
+        queryIdxs[i] = good_match[i].queryIdx;
+        trainIdxs[i] = good_match[i].trainIdx;
+    }
+    vector<Point2f> points1;
+    KeyPoint::convert(keypoints_frame, points1, queryIdxs);
+
+    vector<Point2f> points2;
+    Mat noArray;
+    KeyPoint::convert(keypoints_ref, points2, trainIdxs);
+    F = findFundamentalMat(points1,points2,FM_RANSAC,3,0.99);
+
+    return true;
+
 }
