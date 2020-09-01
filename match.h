@@ -23,4 +23,5 @@ void simpleMatching(Ptr<DescriptorMatcher>& descriptorMatcher,
     const Mat& descriptors1, const Mat& descriptors2,
     vector<DMatch>& matches12);
 bool estimatePoseRANSAC(Mat &full,Mat &frame);
+bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F);
 #endif

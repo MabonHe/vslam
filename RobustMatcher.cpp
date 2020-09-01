@@ -3,6 +3,7 @@
  *
  *  Created on: Jun 4, 2014
  *      Author: eriba
+ *      Update: maobin
  */
 
 #include "RobustMatcher.h"

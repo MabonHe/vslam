@@ -6,7 +6,7 @@
  ************************************************************************/
 
 #include"match.h"
-
+#include"RobustMatcher.h"
 bool CalculateHomographyMatrix(Mat &full,Mat &frame,Mat &H)
 {
     double ransacReprojThreshold = 5;
@@ -194,4 +194,21 @@ bool estimatePoseRANSAC(Mat &full,Mat &frame)
         //list_points3d_model_match.push_back(point3d_model);                                      // add 3D point
         //list_points2d_scene_match.push_back(point2d_scene);                                      // add 2D point
     }
+}
+bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F)
+{
+    int numKeyPoints = 1000;
+    RobustMatcher rmatcher;                                                          // instantiate RobustMatcher
+    Ptr<FeatureDetector> detector = ORB::create(numKeyPoints);
+    //cv::FeatureDetector * detector = new OrbFeatureDetector(numKeyPoints);       // instantiate ORB feature detector
+    Ptr<DescriptorExtractor> extractor = ORB::create();
+    //cv::DescriptorExtractor * extractor = new OrbDescriptorExtractor();          // instantiate ORB descriptor extractor
+    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("FlannBased");
+    rmatcher.setFeatureDetector(detector);                                           // set feature detector
+    rmatcher.setDescriptorExtractor(extractor);                                      // set descriptor extractor
+    rmatcher.setDescriptorMatcher(matcher);
+    vector<DMatch> good_match;
+    vector<KeyPoint> keypoints_frame,keypoints_ref;
+    rmatcher.robustMatch(frame,good_match,keypoints_frame,full,keypoints_ref);
+
 }
