@@ -221,10 +221,16 @@ bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F)
     KeyPoint::convert(keypoints_frame, points1, queryIdxs);
 
     vector<Point2f> points2;
-    Mat noArray;
     KeyPoint::convert(keypoints_ref, points2, trainIdxs);
     F = findFundamentalMat(points1,points2,FM_RANSAC,3,0.99);
 
     return true;
 
+}
+bool findEssentialMatrix(){return true;}
+bool computeCorrespondEpipolarLines(Mat &F)
+{
+
+
+    return true;
 }
