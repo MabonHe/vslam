@@ -16,7 +16,7 @@ int VideoRW::savevideo(Mat frame){
 
     return 0;
 }
-int VideoRW::savevideo(int framecount){
+int VideoRW::savevideo(char *filename,vector<Mat> framelist){
 
     return 0;
 }

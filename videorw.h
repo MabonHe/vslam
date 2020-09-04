@@ -18,7 +18,7 @@ public:
     VideoRW();
     ~VideoRW();
     int savevideo(Mat frame);
-    int savevideo(int framecount);
+    int savevideo(char *filename,vector<Mat> framelist);
     int readvideo(const char *filename,vector<Mat> &framelist);
 
 };
