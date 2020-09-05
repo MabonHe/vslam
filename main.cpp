@@ -18,7 +18,8 @@ using namespace cv;
 
 bool savevideo = false;
 bool readvideo = false;
-char videofile[64] = " ";
+char filename[64] = " ";
+int numbuf = 1;
 static struct option const long_options[] =
 {
     {"help", no_argument, NULL, 'H'},
@@ -31,7 +32,8 @@ void usage()
         "--help -h\n"
         "--savevideo -s\n"
         "--readvideo -r\n"
-        "--format -f\n");
+        "--numbuf -n\n"
+        "--filename -f\n");
 }
 int parse_args(int argc,char **argv);
 int parse_args(int argc,char **argv)
@@ -39,21 +41,24 @@ int parse_args(int argc,char **argv)
     int c;
     int longindex=0;
     char format[64]="NV12";
-    while ((c = getopt_long (argc, argv, "Hsf:r:", long_options, &longindex)) != -1)
+    while ((c = getopt_long (argc, argv, "Hsf:r:n:", long_options, &longindex)) != -1)
     {
         switch (c)
         {
             case 'f':
-                memset(format,0,sizeof(format));
-                sprintf(format,"%s",optarg);
+                memset(filename,0,sizeof(filename));
+                sprintf(filename,"%s",optarg);
                 break;
             case 's':
                 savevideo = true;
                 break;
             case 'r':
                 readvideo = true;
-                memset(format,0,sizeof(videofile));
-                sprintf(videofile,"%s",optarg);
+                memset(format,0,sizeof(filename));
+                sprintf(filename,"%s",optarg);
+                break;
+            case 'n':
+                numbuf = atoi(optarg);
                 break;
             case 'H':
                 usage();
@@ -87,12 +92,14 @@ main(int argc,char *argv[])
         cout << "argv:" << argv[1] << endl;
         VideoRW videorw;
         vector<Mat> v;
-        videorw.readvideo(videofile,v);
+        videorw.readvideo(filename,v);
         cout << "size:" << v.size() << endl;
     }
     else if(savevideo)
     {
         cout << "save video record....." << endl;
+        VideoRW videorw;
+        videorw.savevideo(filename,numbuf);
     }
     //camera.start_camera_thread();
     while (false)
