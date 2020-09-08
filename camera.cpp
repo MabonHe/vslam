@@ -25,14 +25,14 @@ Camera::get_frame(struct FrameData &framedata)
     int count = 0;
     while(true)
     {
-        sleep(1);
+        usleep(100);
         count++;
         if (frame_data.is_empty == false){
             framedata.frame_queue = frame_data.frame_queue;
             break;
         }
 
-        if (count >= 5){
+        if (count >= 100000){
             cerr << "cannot get a frame data" << endl;
             break;
         }

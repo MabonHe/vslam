@@ -7,6 +7,8 @@
 
 #include"match.h"
 #include"RobustMatcher.h"
+vector<Point2f> g_points1;
+vector<Point2f> g_points2;
 bool CalculateHomographyMatrix(Mat &full,Mat &frame,Mat &H)
 {
     double ransacReprojThreshold = 5;
@@ -234,7 +236,7 @@ bool findEssentialMatrix(Mat &full,Mat &frame,Mat &E){
     //cv::FeatureDetector * detector = new OrbFeatureDetector(numKeyPoints);       // instantiate ORB feature detector
     Ptr<DescriptorExtractor> extractor = ORB::create();
     //cv::DescriptorExtractor * extractor = new OrbDescriptorExtractor();          // instantiate ORB descriptor extractor
-    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("FlannBased");
+    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
     rmatcher.setFeatureDetector(detector);                                           // set feature detector
     rmatcher.setDescriptorExtractor(extractor);                                      // set descriptor extractor
     rmatcher.setDescriptorMatcher(matcher);
@@ -250,9 +252,11 @@ bool findEssentialMatrix(Mat &full,Mat &frame,Mat &E){
     }
     vector<Point2f> points1;
     KeyPoint::convert(keypoints_frame, points1, queryIdxs);
+    g_points1 = points1;
 
     vector<Point2f> points2;
     KeyPoint::convert(keypoints_ref, points2, trainIdxs);
+    g_points2 = points2;
     //logic camera matrix
     Mat K = (Mat_<double>(3, 3) << 657.4, 0, 319.5, 0, 657.4, 239.5, 0, 0, 1);
     E = findEssentialMat(points1,points2,K,RANSAC,0.99,1.0);
@@ -264,9 +268,11 @@ bool computeCorrespondEpipolarLines(Mat &F)
 
     return true;
 }
-bool computerPoseByEssentialMat(Mat &E)
+bool computerPoseByEssentialMat(Mat &E,Mat &R,Mat &t)
 {
-    //TODO
-    //recoverPose();
+    Mat K = (Mat_<double>(3, 3) << 657.4, 0, 319.5, 0, 657.4, 239.5, 0, 0, 1);
+    recoverPose(E,g_points1,g_points2,K,R,t);
+    cout << "R is" <<endl << R << endl;
+    cout << "t is" << endl << t << endl;
     return true;
 }

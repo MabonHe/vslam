@@ -26,5 +26,5 @@ bool estimatePoseRANSAC(Mat &full,Mat &frame);
 bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F);
 bool findEssentialMatrix(Mat &full,Mat &frame,Mat &E);
 bool computeCorrespondEpipolarLines(Mat &F);
-bool computerPoseByEssentialMat(Mat &E);
+bool computerPoseByEssentialMat(Mat &E,Mat &R,Mat &t);
 #endif

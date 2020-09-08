@@ -19,11 +19,14 @@ using namespace cv;
 bool savevideo = false;
 bool readvideo = false;
 char filename[64] = " ";
+char testMode[32] = "";
 int numbuf = 1;
 static struct option const long_options[] =
 {
     {"help", no_argument, NULL, 'H'},
     {"format", required_argument, NULL, 'f'},
+    {"readvideo",required_argument, NULL, 'r'},
+    {"testMode",required_argument,NULL,'m'},
     {NULL, 0, NULL, 0}
 };
 void usage()
@@ -33,6 +36,7 @@ void usage()
         "--savevideo -s\n"
         "--readvideo -r\n"
         "--numbuf -n\n"
+        "--testMode -m\n"
         "--filename -f\n");
 }
 int parse_args(int argc,char **argv);
@@ -41,7 +45,7 @@ int parse_args(int argc,char **argv)
     int c;
     int longindex=0;
     char format[64]="NV12";
-    while ((c = getopt_long (argc, argv, "Hsf:r:n:", long_options, &longindex)) != -1)
+    while ((c = getopt_long (argc, argv, "Hsf:r:n:m:", long_options, &longindex)) != -1)
     {
         switch (c)
         {
@@ -54,11 +58,15 @@ int parse_args(int argc,char **argv)
                 break;
             case 'r':
                 readvideo = true;
-                memset(format,0,sizeof(filename));
+                memset(filename,0,sizeof(filename));
                 sprintf(filename,"%s",optarg);
                 break;
             case 'n':
                 numbuf = atoi(optarg);
+                break;
+            case 'm':
+                memset(testMode,0,sizeof(testMode));
+                sprintf(testMode,"%s",optarg);
                 break;
             case 'H':
                 usage();
@@ -88,12 +96,14 @@ main(int argc,char *argv[])
     vector<Vec4i> hierarchy;
     if(readvideo)
     {
-        cout << "argc:" << argc << endl;
-        cout << "argv:" << argv[1] << endl;
+        cout << "filename:" << filename << endl;
         VideoRW videorw;
         vector<Mat> v;
         videorw.readvideo(filename,v);
         cout << "size:" << v.size() << endl;
+        Mat E,R,t;
+        findEssentialMatrix(v[3],v[4],E);
+        computerPoseByEssentialMat(E,R,t);
     }
     else if(savevideo)
     {
@@ -101,6 +111,19 @@ main(int argc,char *argv[])
         VideoRW videorw;
         videorw.savevideo(filename,numbuf);
     }
+    else if(strcmp(testMode,"pose") == 0)
+    {
+        camera.start_camera_thread();
+        while(true)
+        {
+            Mat dst;
+            Mat E, R, t;
+            camera.get_frame(framedata);
+            findEssentialMatrix(framedata.frame_queue[0],framedata.frame_queue[1],E);
+            computerPoseByEssentialMat(E,R,t);
+        }
+    }
+
     //camera.start_camera_thread();
     while (false)
     {
