@@ -227,10 +227,46 @@ bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F)
     return true;
 
 }
-bool findEssentialMatrix(){return true;}
+bool findEssentialMatrix(Mat &full,Mat &frame,Mat &E){
+    int numKeyPoints = 1000;
+    RobustMatcher rmatcher;                                                          // instantiate RobustMatcher
+    Ptr<FeatureDetector> detector = ORB::create(numKeyPoints);
+    //cv::FeatureDetector * detector = new OrbFeatureDetector(numKeyPoints);       // instantiate ORB feature detector
+    Ptr<DescriptorExtractor> extractor = ORB::create();
+    //cv::DescriptorExtractor * extractor = new OrbDescriptorExtractor();          // instantiate ORB descriptor extractor
+    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("FlannBased");
+    rmatcher.setFeatureDetector(detector);                                           // set feature detector
+    rmatcher.setDescriptorExtractor(extractor);                                      // set descriptor extractor
+    rmatcher.setDescriptorMatcher(matcher);
+    vector<DMatch> good_match;
+    vector<KeyPoint> keypoints_frame,keypoints_ref;
+    rmatcher.robustMatch(frame,good_match,keypoints_frame,full,keypoints_ref);
+
+    vector<int> queryIdxs(good_match.size()), trainIdxs(good_match.size());
+    for (size_t i = 0; i < good_match.size(); i++)
+    {
+        queryIdxs[i] = good_match[i].queryIdx;
+        trainIdxs[i] = good_match[i].trainIdx;
+    }
+    vector<Point2f> points1;
+    KeyPoint::convert(keypoints_frame, points1, queryIdxs);
+
+    vector<Point2f> points2;
+    KeyPoint::convert(keypoints_ref, points2, trainIdxs);
+    //logic camera matrix
+    Mat K = (Mat_<double>(3, 3) << 657.4, 0, 319.5, 0, 657.4, 239.5, 0, 0, 1);
+    E = findEssentialMat(points1,points2,K,RANSAC,0.99,1.0);
+    return true;
+}
 bool computeCorrespondEpipolarLines(Mat &F)
 {
 
 
+    return true;
+}
+bool computerPoseByEssentialMat(Mat &E)
+{
+    //TODO
+    //recoverPose();
     return true;
 }

@@ -24,6 +24,7 @@ void simpleMatching(Ptr<DescriptorMatcher>& descriptorMatcher,
     vector<DMatch>& matches12);
 bool estimatePoseRANSAC(Mat &full,Mat &frame);
 bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F);
-bool findEssentialMatrix();
+bool findEssentialMatrix(Mat &full,Mat &frame,Mat &E);
 bool computeCorrespondEpipolarLines(Mat &F);
+bool computerPoseByEssentialMat(Mat &E);
 #endif
