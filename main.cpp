@@ -119,8 +119,9 @@ main(int argc,char *argv[])
             Mat dst;
             Mat E, R, t;
             camera.get_frame(framedata);
-            findEssentialMatrix(framedata.frame_queue[0],framedata.frame_queue[1],E);
-            computerPoseByEssentialMat(E,R,t);
+            bool ret = findEssentialMatrix(framedata.frame_queue[0],framedata.frame_queue[1],E);
+            if (ret)
+                computerPoseByEssentialMat(E,R,t);
         }
     }
 

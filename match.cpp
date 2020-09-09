@@ -205,7 +205,7 @@ bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F)
     //cv::FeatureDetector * detector = new OrbFeatureDetector(numKeyPoints);       // instantiate ORB feature detector
     Ptr<DescriptorExtractor> extractor = ORB::create();
     //cv::DescriptorExtractor * extractor = new OrbDescriptorExtractor();          // instantiate ORB descriptor extractor
-    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("FlannBased");
+    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
     rmatcher.setFeatureDetector(detector);                                           // set feature detector
     rmatcher.setDescriptorExtractor(extractor);                                      // set descriptor extractor
     rmatcher.setDescriptorMatcher(matcher);
@@ -213,6 +213,11 @@ bool findFundamentalMatrix(Mat &full,Mat &frame,Mat &F)
     vector<KeyPoint> keypoints_frame,keypoints_ref;
     rmatcher.robustMatch(frame,good_match,keypoints_frame,full,keypoints_ref);
 
+    if (good_match.size() < 10)
+    {
+        cout << "[ERROR] keypoints less than 10:" << good_match.size() << endl;
+        return false;
+    }
     vector<int> queryIdxs(good_match.size()), trainIdxs(good_match.size());
     for (size_t i = 0; i < good_match.size(); i++)
     {
@@ -244,6 +249,11 @@ bool findEssentialMatrix(Mat &full,Mat &frame,Mat &E){
     vector<KeyPoint> keypoints_frame,keypoints_ref;
     rmatcher.robustMatch(frame,good_match,keypoints_frame,full,keypoints_ref);
 
+    if (good_match.size() < 10)
+    {
+        cout << "[ERROR] keypoints less than 10:" << good_match.size() << endl;
+        return false;
+    }
     vector<int> queryIdxs(good_match.size()), trainIdxs(good_match.size());
     for (size_t i = 0; i < good_match.size(); i++)
     {
