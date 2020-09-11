@@ -27,6 +27,7 @@ static struct option const long_options[] =
     {"format", required_argument, NULL, 'f'},
     {"readvideo",required_argument, NULL, 'r'},
     {"testMode",required_argument,NULL,'m'},
+    {"savevideo",required_argument,NULL,'s'},
     {NULL, 0, NULL, 0}
 };
 void usage()
@@ -45,7 +46,7 @@ int parse_args(int argc,char **argv)
     int c;
     int longindex=0;
     char format[64]="NV12";
-    while ((c = getopt_long (argc, argv, "Hsf:r:n:m:", long_options, &longindex)) != -1)
+    while ((c = getopt_long (argc, argv, "Hs:f:r:n:m:", long_options, &longindex)) != -1)
     {
         switch (c)
         {
@@ -55,6 +56,8 @@ int parse_args(int argc,char **argv)
                 break;
             case 's':
                 savevideo = true;
+                memset(filename,0,sizeof(filename));
+                sprintf(filename,"%s",optarg);
                 break;
             case 'r':
                 readvideo = true;
@@ -102,7 +105,10 @@ main(int argc,char *argv[])
         videorw.readvideo(filename,v);
         cout << "size:" << v.size() << endl;
         Mat E,R,t;
-        findEssentialMatrix(v[3],v[4],E);
+        findEssentialMatrix(v[3],v[20],E);
+        computerPoseByEssentialMat(E,R,t);
+
+        findEssentialMatrix(v[3],v[30],E);
         computerPoseByEssentialMat(E,R,t);
     }
     else if(savevideo)
@@ -120,8 +126,40 @@ main(int argc,char *argv[])
             Mat E, R, t;
             camera.get_frame(framedata);
             bool ret = findEssentialMatrix(framedata.frame_queue[0],framedata.frame_queue[1],E);
-            if (ret)
+            if (ret){
                 computerPoseByEssentialMat(E,R,t);
+            }
+        }
+    }
+    else if(strcmp(testMode,"pose-H") == 0)
+    {
+        camera.start_camera_thread();
+        Mat K = (Mat_<double>(3, 3) << 657.4, 0, 319.5, 0, 657.4, 239.5, 0, 0, 1);
+        while(true)
+        {
+            Mat dst;
+            Mat H, R, t;
+            //int solutions = 0;
+            vector<Mat> Rs_decomp, ts_decomp, normals_decomp;
+            camera.get_frame(framedata);
+            bool ret = CalculateHomographyMatrix(framedata.frame_queue[0],framedata.frame_queue[1],H);
+            if (ret)
+            {
+                int solutions = decomposeHomographyMat(H,K,Rs_decomp,ts_decomp,normals_decomp);
+                for(int i = 0; i < solutions; i++)
+                {
+                    double factor_d1 = 1.0;
+                    Mat rvec_decomp;
+                    Rodrigues(Rs_decomp[i], rvec_decomp);
+                    cout << "Solution " << i << ":" << endl;
+                    //cout << "rvec from homography decomposition: " << rvec_decomp.t() << endl;
+                    //cout << "rvec from camera displacement: " << rvec_1to2.t() << endl;
+                    cout << "tvec from homography decomposition: " << ts_decomp[i].t() << " and scaled by d: " << factor_d1 * ts_decomp[i].t() << endl;
+                    //cout << "tvec from camera displacement: " << t_1to2.t() << endl;
+                    //cout << "plane normal from homography decomposition: " << normals_decomp[i].t() << endl;
+                    //cout << "plane normal at camera 1 pose: " << normal1.t() << endl << endl;
+                }
+            }
         }
     }
 

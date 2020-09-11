@@ -31,8 +31,8 @@ bool CalculateHomographyMatrix(Mat &full,Mat &frame,Mat &H)
     drawKeypoints(frame,keypoints2,img_keypoints2,Scalar::all(-1));
     char outputfile[128]="/home/maobin/workspace/vslam/full.bmp";
     //imwrite(outputfile,img_keypoints1);
-    imshow("full",img_keypoints1);
-    imshow("frame",img_keypoints2);
+    //imshow("full",img_keypoints1);
+    //imshow("frame",img_keypoints2);
     char outputfile_frame[128]="/home/maobin/workspace/vslam/frame.bmp";
     //imwrite(outputfile_frame,img_keypoints2);
 
@@ -44,7 +44,8 @@ bool CalculateHomographyMatrix(Mat &full,Mat &frame,Mat &H)
     vector<DMatch> filteredMatches;
     crossCheckMatching(descriptorMatcher, descriptors1, descriptors2, filteredMatches, 1);
     drawMatches(full,keypoints1,frame,keypoints2,filteredMatches,img_match,Scalar::all(-1),Scalar::all(-1));
-    imshow("match",img_match);
+    //imshow("match",img_match);
+    //waitKey(1);
     char outputfile_match[128]="/home/maobin/workspace/vslam/match.bmp";
     //imwrite(outputfile_match,img_match);
     vector<int> queryIdxs(filteredMatches.size()), trainIdxs(filteredMatches.size());
